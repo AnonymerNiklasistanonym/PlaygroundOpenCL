@@ -1,0 +1,12 @@
+# Ignore build directory
+build/
+
+# Ignore Visual Studio Code
+.vscode/
+
+# Ignore dist directory
+dist/
+
+# Ignore copied libs/includes
+include/
+lib/
