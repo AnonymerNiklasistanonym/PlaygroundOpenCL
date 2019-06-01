@@ -54,7 +54,7 @@ int main()
 				<< "\n\t\tVendor: " << device.getInfo<CL_DEVICE_VENDOR>()
 				<< "\n\t\tVersion: " << device.getInfo<CL_DEVICE_VERSION>()
 				<< "\n\t\tAvailable: " << device.getInfo<CL_DEVICE_AVAILABLE>()
-				<< "\n\t\tMax compute units: " << device.getInfo<CL_DEVICE_MAX_COMPUTE_UNITS>()
+				<< "\n\t\tMax work group size: " << device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>()
 				<< "\n\t\tMax clock frequency: " << device.getInfo<CL_DEVICE_MAX_CLOCK_FREQUENCY>()
 				<< "\n\t\tGlobal memory size: " << (double)device.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>() / pow(2, 30) << "GB"
 				<< "\n\t\tLocal memory size: " << (double)device.getInfo<CL_DEVICE_LOCAL_MEM_SIZE>() / pow(2, 10) << "KB"

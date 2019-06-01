@@ -46,7 +46,13 @@ make
 # Copy executable to dist directory
 mkdir -p ../dist
 cp main ../dist/main
+cp ../kernel.cl ../dist/kernel.cl
+
+# Clean everything besides the dist directory
+cd ..
+rm -rf include
+rm -rf lib
+rm -rf build
 
 # Run it with
-# cd ..
 # ./dist/main
