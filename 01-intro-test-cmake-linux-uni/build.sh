@@ -18,6 +18,11 @@ else
   make --version | head -n 1
 fi
 
+# List variables if needed
+if [[ "$OSTYPE" == "msys" ]]; then
+	echo "OpenCL_INCLUDE_DIRS: $OpenCL_INCLUDE_DIRS"
+fi
+
 # Create OpenCL C++ headers if they are not already existing
 ./createOpenClHeaders.sh
 
@@ -50,7 +55,6 @@ if ! [[ $? -eq 0 ]]; then
 	echo "Make was not successful!" >&2
 	exit 1
 fi
-
 
 # Copy executable to dist directory
 mkdir -p ../dist

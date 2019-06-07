@@ -106,7 +106,7 @@ bool runKernelOnOpenClDevice(cl::Device &device)
 
     // apparently OpenCL only likes arrays ...
     // N holds the number of elements in the vectors we want to add
-    std::vector<cl_int> vec_output(size);
+    std::vector<int> vec_output(size);
     memset(vec_output.data(), 100, size);
 
     // create buffers on device (allocate space on GPU)
