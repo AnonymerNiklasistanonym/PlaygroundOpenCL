@@ -1,15 +1,15 @@
-// For CMake
-// #pragma GCC diagnostic ignored "-Wignored-attributes"
-
 // TARGET OPENCL 2.0
 #define CL_HPP_TARGET_OPENCL_VERSION 200
 #include <CL/cl2.hpp>
 
-#include <cmath>
 #include <vector>
 #include <iostream>
 
-bool runKernelOnOpenClDevice(cl::Device &device);
+void runHostCode(std::vector<int> &vector);
+
+const bool runKernelOnOpenClDevice(cl::Device &device, const unsigned int size, const int64_t cpuTimeNs);
+
+inline const uint64_t getTime(cl::Event &event);
 
 int main()
 {
@@ -24,10 +24,24 @@ int main()
         std::cerr << "No supported plaforms found!";
         return EXIT_FAILURE;
     }
-    else
-    {
-        std::cout << platforms.size() << " platform(s) found" << std::endl;
-    }
+    std::cout << platforms.size() << " platform(s) found" << std::endl;
+
+    // Set the size of the array
+    const unsigned int size = 100000000;
+
+    // Run the host code
+    std::vector<int> vec(size);
+    memset(vec.data(), -1, size);
+	std::cout << "Run the host code" << std::endl;
+	const std::chrono::steady_clock::time_point cpu_calculation_begin = std::chrono::steady_clock::now();
+	runHostCode(vec);
+	const std::chrono::steady_clock::time_point cpu_calculation_end = std::chrono::steady_clock::now();
+    const auto cpuTimeNs = std::chrono::duration_cast<std::chrono::nanoseconds>(cpu_calculation_end - cpu_calculation_begin).count();
+	std::cout << "\t=> CPU: " << cpuTimeNs << "ns" << std::endl;
+
+	// Calculate duration
+	const auto cpu_calculation_time_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(cpu_calculation_end - cpu_calculation_begin).count();
+	std::cout << "CPU time:\n\tCalculation: " << cpu_calculation_time_nanoseconds << "ns" << std::endl;
 
     std::cout << "\033[1;34mAll OpenCL platforms:\033[0m" << std::endl;
     int platformCounter = 0;
@@ -64,14 +78,24 @@ int main()
                       << "\n\t\tMaximum allocatable memory: " << (double)device.getInfo<CL_DEVICE_MAX_MEM_ALLOC_SIZE>() / 1024 / 1024 / 1024 << "GB" << std::endl;
 
             // Run on device an example kernel
-            if (!runKernelOnOpenClDevice(device)) {
+            if (!runKernelOnOpenClDevice(device, size, cpuTimeNs)) {
                 std::cout << "\t\033[1;31mError running the kernel!\033[0m" << std::endl;
             }
         }
     }
 }
 
-bool runKernelOnOpenClDevice(cl::Device &device)
+void runHostCode(std::vector<int> &vec)
+{
+    for (unsigned int i = 0; i < vec.size(); i++)
+    {
+        if (static_cast<int>(i) != vec[i]) {
+            vec[i] = static_cast<int>(i);
+        }
+    }
+}
+
+const bool runKernelOnOpenClDevice(cl::Device &device, const unsigned int size, const int64_t cpuTimeNs)
 {
     if (!device.getInfo<CL_DEVICE_AVAILABLE>())
     {
@@ -102,12 +126,10 @@ bool runKernelOnOpenClDevice(cl::Device &device)
         return false;
     }
 
-    const unsigned int size = 1000;
-
     // apparently OpenCL only likes arrays ...
     // N holds the number of elements in the vectors we want to add
-    std::vector<cl_int> vec_output(size);
-    memset(vec_output.data(), 100, size);
+    std::vector<int> vec_output(size);
+    memset(vec_output.data(), -1, size);
 
     // create buffers on device (allocate space on GPU)
     cl::Buffer buffer_output(context, CL_MEM_READ_ONLY, sizeof(cl_int) * size);
@@ -116,17 +138,28 @@ bool runKernelOnOpenClDevice(cl::Device &device)
     cl::CommandQueue queue(context, device, CL_QUEUE_PROFILING_ENABLE);
 
     // push write commands to queue
-    queue.enqueueWriteBuffer(buffer_output, CL_TRUE, 0, sizeof(cl_int) * size, vec_output.data());
+    cl::Event eventWriteToBuffer;
+    queue.enqueueWriteBuffer(buffer_output, CL_TRUE, 0, sizeof(cl_int) * size, vec_output.data(), NULL, &eventWriteToBuffer);
 
     // RUN ZE KERNEL
     cl::Kernel kernel_simple = cl::Kernel(program, "simple");
     kernel_simple.setArg(0, buffer_output);
-    queue.enqueueNDRangeKernel(kernel_simple, cl::NullRange, cl::NDRange(size), cl::NullRange);
-    queue.finish();
+    cl::Event eventKernelExecution;
+    queue.enqueueNDRangeKernel(kernel_simple, cl::NullRange, cl::NDRange(size), cl::NullRange, NULL, &eventKernelExecution);
 
     // read result from GPU to here
-    queue.enqueueReadBuffer(buffer_output, CL_TRUE, 0, sizeof(cl_int) * size, vec_output.data());
-    queue.finish();
+    cl::Event eventReadFromBuffer;
+    queue.enqueueReadBuffer(buffer_output, CL_TRUE, 0, sizeof(cl_int) * size, vec_output.data(), NULL, &eventReadFromBuffer);
+
+    const auto writeToBufferNs = getTime(eventWriteToBuffer);
+    const auto kernelExecutionNs = getTime(eventKernelExecution);
+    const auto readFromBufferNs = getTime(eventReadFromBuffer);
+    const auto wholeTimeNs = writeToBufferNs + kernelExecutionNs + readFromBufferNs;
+
+    std::cout << "\t\t\tTime:\n\t\t\t\tWrite to buffer:  " << writeToBufferNs
+              <<"ns\n\t\t\t\tKernel execution: " << kernelExecutionNs
+              <<"ns\n\t\t\t\tRead from buffer: " << readFromBufferNs
+              <<"ns\n\t\t\t\t\t=> Sum:   " << wholeTimeNs << "ns (" << wholeTimeNs / 1000000.0 << "s, Speedup: " << (double)cpuTimeNs / wholeTimeNs << ")" << std::endl;
 
     for (unsigned int i = 0; i < vec_output.size(); i++)
     {
@@ -134,7 +167,14 @@ bool runKernelOnOpenClDevice(cl::Device &device)
             std::cout << "\t\t\033[1;31mError in kernel execution!\033[0m" << std::endl;
             return false;
         }
+        // std::cout << i << ": " << vec_output[i] << std::endl;
     }
 
     return true;
+}
+
+inline const uint64_t getTime(cl::Event &event)
+{
+    return event.getProfilingInfo<CL_PROFILING_COMMAND_END>() - event.getProfilingInfo<CL_PROFILING_COMMAND_START>();
+
 }
