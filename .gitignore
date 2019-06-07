@@ -10,10 +10,6 @@ build/
 # Ignore dist directory
 dist/
 
-# Ignore copied libs/includes
-include/
-lib/
-
 # Ignore CMake user file
 *.user
 

@@ -1,0 +1,2 @@
+# Ignore built OpenCL headers
+include/CL
