@@ -6,7 +6,7 @@ if [[ -f "$MAIN_OPENCL_HEADER_FILE" ]]; then
 	echo "The main header file was already found ($MAIN_OPENCL_HEADER_FILE), do not build the headers again"
     echo "[Remove the include/CL directory to build them again]"
 else
-    SUBMODULE_OPENCL_HPP_DIR=vendor/OpenCL-CLHPP/
+    SUBMODULE_OPENCL_HPP_DIR=vendor/openclcppheader/
 	echo "> CREATE OpenCL headers..."
     git submodule update --init
     cd $SUBMODULE_OPENCL_HPP_DIR

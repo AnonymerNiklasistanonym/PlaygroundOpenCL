@@ -1,0 +1,3 @@
+[submodule "01-intro-test-cmake-linux-uni/vendor/openclcppheader"]
+	path = 01-intro-test-cmake-linux-uni/vendor/openclcppheader
+	url = https://github.com/KhronosGroup/OpenCL-CLHPP.git
