@@ -14,7 +14,7 @@ message("-> OpenCL_INCLUDE_DIR: ${OpenCL_INCLUDE_DIR}")
 message("-> OpenCL_LIBRARY:     ${OpenCL_LIBRARY}")
 
 # Set compiler warn arguments
-set(COMPILER_WARN_ARGS "-Wall -Werror -pedantic")
+set(COMPILER_WARN_ARGS "-Wall -pedantic")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMPILER_WARN_ARGS}")
 
 # Get project headers and sources
@@ -23,6 +23,8 @@ set(PROJECT_HEADER_DIR src/)
 set(PROJECT_INCLUDE include/)
 file(GLOB PROJECT_SOURCES "${PROJECT_SOURCE_DIR}*.cpp")
 set(PROJECT_MAIN ${PROJECT_SOURCE_DIR}main.cpp)
+
+set_source_files_properties(cl2.hpp PROPERTIES COMPILE_FLAGS -Wno-effc++)
 
 # Create executable with the following source files:
 add_executable(${PROJECT_NAME} ${PROJECT_MAIN} ${PROJECT_SOURCES})
