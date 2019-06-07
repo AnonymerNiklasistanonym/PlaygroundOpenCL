@@ -104,21 +104,18 @@ const bool runKernelOnOpenClDevice(cl::Device &device, const unsigned int size, 
     }
     std::cout << "\t\t>> Run example kernel on OpenCL device \"" << device.getInfo<CL_DEVICE_NAME>() << "\"" << std::endl;
 
-    // a context is like a "runtime link" to the device and platform;
-    // i.e. communication is possible
+    // Create link between the device and platform;
     cl::Context context({device});
 
-    // create the program that we want to execute on the device
+    // Create the program that should be executed that is equivalent to the host code
     cl::Program::Sources sources;
-
-    // calculates for each element; C = A + B
     std::string kernel_code =
         "void kernel simple(global int* output) {"
         "    const uint countX = get_global_id(0);"
         "    output[countX] = countX;"
         "}";
     sources.push_back({kernel_code.c_str(), kernel_code.length()});
-
+    // Build the program and check if compilation was successful
     cl::Program program(context, sources);
     if (program.build({device}) != CL_SUCCESS)
     {
@@ -126,41 +123,41 @@ const bool runKernelOnOpenClDevice(cl::Device &device, const unsigned int size, 
         return false;
     }
 
-    // apparently OpenCL only likes arrays ...
-    // N holds the number of elements in the vectors we want to add
+    // Create vector which we will read and write
     std::vector<int> vec_output(size);
     memset(vec_output.data(), -1, size);
 
-    // create buffers on device (allocate space on GPU)
+    // Allocate buffer on the OpenCL device for the vector data
     cl::Buffer buffer_output(context, CL_MEM_READ_ONLY, sizeof(cl_int) * size);
 
-    // create a queue (a queue of commands that the GPU will execute)
+    // Create a queue of commands that will be executed on the OpenCL device
     cl::CommandQueue queue(context, device, CL_QUEUE_PROFILING_ENABLE);
 
-    // push write commands to queue
+    // Write current vector data to the OpenCL buffer
     cl::Event eventWriteToBuffer;
     queue.enqueueWriteBuffer(buffer_output, CL_TRUE, 0, sizeof(cl_int) * size, vec_output.data(), NULL, &eventWriteToBuffer);
 
-    // RUN ZE KERNEL
+    // Run the kernel/program on the OpenCL device
     cl::Kernel kernel_simple = cl::Kernel(program, "simple");
     kernel_simple.setArg(0, buffer_output);
     cl::Event eventKernelExecution;
     queue.enqueueNDRangeKernel(kernel_simple, cl::NullRange, cl::NDRange(size), cl::NullRange, NULL, &eventKernelExecution);
 
-    // read result from GPU to here
+    // Read the new values in the OpenCL device back into to the host into out vector
     cl::Event eventReadFromBuffer;
     queue.enqueueReadBuffer(buffer_output, CL_TRUE, 0, sizeof(cl_int) * size, vec_output.data(), NULL, &eventReadFromBuffer);
 
+    // Calculate all times
     const auto writeToBufferNs = getTime(eventWriteToBuffer);
     const auto kernelExecutionNs = getTime(eventKernelExecution);
     const auto readFromBufferNs = getTime(eventReadFromBuffer);
     const auto wholeTimeNs = writeToBufferNs + kernelExecutionNs + readFromBufferNs;
-
     std::cout << "\t\t\tTime:\n\t\t\t\tWrite to buffer:  " << writeToBufferNs
               <<"ns\n\t\t\t\tKernel execution: " << kernelExecutionNs
               <<"ns\n\t\t\t\tRead from buffer: " << readFromBufferNs
               <<"ns\n\t\t\t\t\t=> Sum:   " << wholeTimeNs << "ns (" << wholeTimeNs / 1000000.0 << "s, Speedup: " << (double)cpuTimeNs / wholeTimeNs << ")" << std::endl;
 
+    // Check if the "calculation" was successful
     for (unsigned int i = 0; i < vec_output.size(); i++)
     {
         if (static_cast<int>(i) != vec_output[i]) {
