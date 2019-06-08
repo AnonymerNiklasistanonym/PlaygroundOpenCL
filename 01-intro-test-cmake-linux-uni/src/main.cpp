@@ -77,7 +77,7 @@ int main()
                                             ? "\033[1;32mGPU\033[0m" : "\033[1;31mCPU\033[0m")
                       << "\n\t\tVendor: " << device.getInfo<CL_DEVICE_VENDOR>()
                       << "\n\t\tVersion: " << device.getInfo<CL_DEVICE_VERSION>()
-                      << "\n\t\tAvailable: " << device.getInfo<CL_DEVICE_AVAILABLE>()
+                      << "\n\t\tAvailable: " << (device.getInfo<CL_DEVICE_AVAILABLE>() ? "True" : "False")
                       << "\n\t\tMax work group size: " << device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>()
                       << "\n\t\tMax clock frequency: " << device.getInfo<CL_DEVICE_MAX_CLOCK_FREQUENCY>()
                       << "\n\t\tGlobal memory size: "

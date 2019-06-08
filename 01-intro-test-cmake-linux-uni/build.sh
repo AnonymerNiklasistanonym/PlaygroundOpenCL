@@ -18,11 +18,6 @@ else
   make --version | head -n 1
 fi
 
-# List variables if needed
-if [[ "$OSTYPE" == "msys" ]]; then
-	echo "OpenCL_INCLUDE_DIRS: $OpenCL_INCLUDE_DIRS"
-fi
-
 # Create OpenCL C++ headers if they are not already existing
 ./createOpenClHeaders.sh
 
