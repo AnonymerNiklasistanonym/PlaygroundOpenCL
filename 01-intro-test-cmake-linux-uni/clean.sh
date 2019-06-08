@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Remove build/dist directories
-find ./ -type d -regex ".*\(build.*\|dist\)" \
+find ./ -type d -regex ".*\(build.*\|dist\|out\)" \
      -print0 | xargs -n 1 -0 rm -rf
 
 # Remove Visual Studio / Code directories

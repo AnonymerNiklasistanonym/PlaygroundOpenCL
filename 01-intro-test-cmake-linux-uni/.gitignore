@@ -1,2 +1,5 @@
 # Ignore built OpenCL headers
 include/CL
+
+# Ignore VS build directory
+out

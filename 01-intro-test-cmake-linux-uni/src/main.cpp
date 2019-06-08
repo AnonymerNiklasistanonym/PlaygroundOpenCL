@@ -37,7 +37,7 @@ int main()
     std::cout << platforms.size() << " platform(s) found" << std::endl;
 
     // Set the size of the array
-    const unsigned int size = 100000000;
+    constexpr unsigned int size = 100000000;
 
     // Run the host code
     std::vector<int> vec(size);
