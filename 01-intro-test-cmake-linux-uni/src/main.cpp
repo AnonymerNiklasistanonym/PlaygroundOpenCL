@@ -41,7 +41,7 @@ int main()
 
 	// Calculate duration
 	const auto cpu_calculation_time_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(cpu_calculation_end - cpu_calculation_begin).count();
-	std::cout << "CPU time:\n\tCalculation: " << cpu_calculation_time_nanoseconds << "ns" << std::endl;
+	std::cout << "CPU time:\n\tCalculation: " << cpu_calculation_time_nanoseconds << "ns (" << cpuTimeNs / 1000000000.0 << "s)" << std::endl;
 
     std::cout << "\033[1;34mAll OpenCL platforms:\033[0m" << std::endl;
     int platformCounter = 0;
@@ -155,7 +155,7 @@ const bool runKernelOnOpenClDevice(cl::Device &device, const unsigned int size, 
     std::cout << "\t\t\tTime:\n\t\t\t\tWrite to buffer:  " << writeToBufferNs
               <<"ns\n\t\t\t\tKernel execution: " << kernelExecutionNs
               <<"ns\n\t\t\t\tRead from buffer: " << readFromBufferNs
-              <<"ns\n\t\t\t\t\t=> Sum:   " << wholeTimeNs << "ns (" << wholeTimeNs / 1000000.0 << "s, Speedup: " << (double)cpuTimeNs / wholeTimeNs << ")" << std::endl;
+              <<"ns\n\t\t\t\t\t=> Sum:   " << wholeTimeNs << "ns (" << wholeTimeNs / 1000000000.0 << "s, Speedup: " << (double)cpuTimeNs / wholeTimeNs << ")" << std::endl;
 
     // Check if the "calculation" was successful
     for (unsigned int i = 0; i < vec_output.size(); i++)
