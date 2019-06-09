@@ -4,6 +4,15 @@
 
 ### Windows
 
+- Intel CPU
+  1. Go to the [Intel developer zone system studio website](https://dynamicinstaller.intel.com/system-studio/)
+  2. Search for `opencl` to find the tool `OpenCL Tools for Visual Studio`
+  3. Add it to the cart and press `Continue to Download`
+  4. Select `Maybe next time. Please take me to my download.` at the bottom right of the popup window
+  5. Select the download button in the column `Windows* Host, Windows* Target (Plugin for Visual Studio*)`
+  6. Then extract the file and run the web based installer
+  7. Restart your Computer
+
 #### GitBash/MinGW
 
 1. Install [GitBash](https://git-scm.com/downloads)
