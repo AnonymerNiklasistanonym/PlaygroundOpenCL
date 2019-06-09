@@ -41,3 +41,6 @@ target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${OpenCL_INCLUDE_DIR} $
 
 # Link the project with the OpenCL libraries
 target_link_libraries(${PROJECT_NAME} PUBLIC ${OpenCL_LIBRARY})
+
+# Copy the kernel file
+configure_file(src/kernels/kernel.cl ${CMAKE_BINARY_DIR}/kernels/kernel.cl COPYONLY)

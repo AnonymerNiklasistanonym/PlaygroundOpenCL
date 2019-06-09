@@ -3,3 +3,6 @@ include/CL
 
 # Ignore VS build directory
 out
+
+# Ignore weird .orig files
+*.orig

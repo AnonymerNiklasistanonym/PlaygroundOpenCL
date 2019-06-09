@@ -45,15 +45,17 @@ else
 fi
 
 # Build executable
-make
+#make
 if ! [[ $? -eq 0 ]]; then
 	echo "Make was not successful!" >&2
 	exit 1
 fi
 
-# Copy executable to dist directory
+# Copy executable and kernels to dist directory
 mkdir -p ../dist
+mkdir -p ../dist/kernels
 cp main ../dist/main
+cp -a kernels/. ../dist/kernels
 
 # Run it with
 # cd ..

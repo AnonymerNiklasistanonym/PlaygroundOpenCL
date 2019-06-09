@@ -44,7 +44,7 @@ The files are built into the `dist` directory.
 
 Open `Visual Studio` and click `File/Datei`, `Open/Öffnen`, `CMake` and select the `CMakeLists.txt` file.
 
-Then select either `x64 Debug` or `x64 Release` and `main.exe`.
+Then select either `x64 Debug` or `x64 Release` (much faster, like times 50) and `main.exe`.
 
 Now click the green *Play/Run* triangle.
 

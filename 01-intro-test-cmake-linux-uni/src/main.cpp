@@ -2,11 +2,10 @@
 #define CL_HPP_TARGET_OPENCL_VERSION 200
 #include <CL/cl2.hpp>
 
-// Include c libraries
-#include <cmath>
-
 // Include stl libraries
 #include <chrono>
+#include <cmath>
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -119,11 +118,12 @@ const bool runKernelOnOpenClDevice(cl::Device &device, std::vector<int> &vec,
 
     // Create the program that should be executed that is equivalent to the host code
     cl::Program::Sources sources;
-    std::string kernel_code =
-        "void kernel simple(global int* output) {"
-        "    const uint countX = get_global_id(0);"
-        "    output[countX] = countX;"
-        "}";
+    const char *fileName = "kernels/kernel.cl";
+    const char *kernelName = "simple";
+    const std::ifstream file(fileName);
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    const std::string kernel_code = buffer.str();
     sources.push_back({kernel_code.c_str(), kernel_code.length()});
     // Build the program and check if compilation was successful
     cl::Program program(context, sources);
@@ -158,12 +158,11 @@ const bool runKernelOnOpenClDevice(cl::Device &device, std::vector<int> &vec,
                              &eventWriteToBuffer);
 
     // Run the kernel/program on the OpenCL device
-    cl::Kernel kernel_simple = cl::Kernel(program, "simple");
+    cl::Kernel kernel_simple = cl::Kernel(program, kernelName);
     kernel_simple.setArg(0, buffer_output);
     cl::Event eventKernelExecution;
     queue.enqueueNDRangeKernel(kernel_simple, cl::NullRange, cl::NDRange(vec.size()), cl::NullRange,
-                               NULL,
-                               &eventKernelExecution);
+                               NULL, &eventKernelExecution);
 
     // Read the new values in the OpenCL device back into to the host into out vector
     cl::Event eventReadFromBuffer;
