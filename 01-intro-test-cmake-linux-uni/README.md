@@ -37,7 +37,9 @@ The files are built into the `dist` directory.
 
 ```sh
 # Execute the program
-./dist/main
+cd dist
+# The directory change is important to find the kernel file!
+./main
 ```
 
 #### Visual Studio

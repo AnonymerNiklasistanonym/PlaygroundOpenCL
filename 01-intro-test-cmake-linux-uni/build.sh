@@ -60,5 +60,5 @@ cp main ../dist/main
 cp -a kernels/. ../dist/kernels
 
 # Run it with
-# cd ..
-# ./dist/main
+# cd ../dist
+# ./main
