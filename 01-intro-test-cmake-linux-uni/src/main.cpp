@@ -126,8 +126,9 @@ const bool runKernelOnOpenClDevice(cl::Device &device, std::vector<int> &vec,
     const std::string kernel_code = buffer.str();
     sources.push_back({kernel_code.c_str(), kernel_code.length()});
     // Build the program and check if compilation was successful
+    const std::string maxWgSize = std::to_string(device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>());
     cl::Program program(context, sources);
-    if (program.build({device}) != CL_SUCCESS) {
+    if (program.build({device}, ("-DMAX_WG_SIZE=" + maxWgSize).c_str()) != CL_SUCCESS) {
         std::cout << "\t\t\033[1;31mError building:\033[0m "
                   << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device) << std::endl;
         return false;
