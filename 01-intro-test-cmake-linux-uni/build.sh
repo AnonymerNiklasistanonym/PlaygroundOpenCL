@@ -19,7 +19,9 @@ else
 fi
 
 # Create OpenCL C++ headers if they are not already existing
-./createOpenClHeaders.sh
+if [[ "$OSTYPE" == "linux-gnu" ]] || [[ "$OSTYPE" == "linux-ms" ]]; then
+	./createOpenClHeaders.sh
+fi
 
 # Create directory for out of source build
 OUT_OF_SOURCE_BUILD_DIRECTORY=build/
@@ -45,7 +47,7 @@ else
 fi
 
 # Build executable
-#make
+make
 if ! [[ $? -eq 0 ]]; then
 	echo "Make was not successful!" >&2
 	exit 1

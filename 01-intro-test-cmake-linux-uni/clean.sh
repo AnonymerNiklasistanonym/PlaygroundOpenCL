@@ -8,12 +8,8 @@ find ./ -type d -regex ".*\(build.*\|dist\|out\)" \
 find ./ -type d -regex ".*\.\(vs\|vscode\)" \
      -print0 | xargs -n 1 -0 rm -rf
 
-# Remove weird .orig files
-find ./ -type f -regex ".*\.orig" \
-     -print0 | xargs -n 1 -0 rm -f
-
-# Remove CMake and other .user files
-find ./ -type f -regex ".*\.user" \
+# Remove weird .orig files and .user files
+find ./ -type f -regex ".*\.\(orig\|user\)" \
      -print0 | xargs -n 1 -0 rm -f
 
 # Remove OpenCL include directory
