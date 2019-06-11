@@ -118,28 +118,29 @@ const bool runKernelOnOpenClDevice(cl::Device &device, std::vector<int> &vec,
 
     // Create the program that should be executed that is equivalent to the host code
     cl::Program::Sources sources;
-	std::vector<const char*> sourceFiles = {
-		"kernels/kernel.cl",
-		"kernels/kernel_helper.cl"
-	};
+    std::vector<const char *> sourceFiles = {
+        "kernels/kernel.cl",
+        "kernels/kernel_helper.cl"
+    };
     const char *kernelName = "simple";
-	for (auto const& sourceFilePath : sourceFiles) {
-		const std::ifstream file(sourceFilePath);
-		std::stringstream buffer;
-		buffer << file.rdbuf();
-		const std::string kernel_code = buffer.str();
-		//std::cout << "add kernel code: \"" << sourceFilePath << "\" =>\n" << kernel_code << std::endl;
-		sources.push_back({ kernel_code.c_str(), kernel_code.length() });
-	}
-	const std::string maxWgSize = std::to_string(device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>());
-	std::vector<std::tuple<const char*, const char*>> variables = {
-		{ "MAX_WG_SIZE", maxWgSize.c_str() }
-	};
-	std::string variableString = "";
-	for (auto const& variable : variables) {
-		variableString += std::string(" -D") + std::get<0>(variable) + std::string("=") + std::get<1>(variable);
-	}
-	//std::cout << "variableString: \"" << variableString << "\"" << std::endl;
+    for (auto const &sourceFilePath : sourceFiles) {
+        const std::ifstream file(sourceFilePath);
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        const std::string kernel_code = buffer.str();
+        //std::cout << "add kernel code: \"" << sourceFilePath << "\" =>\n" << kernel_code << std::endl;
+        sources.push_back({ kernel_code.c_str(), kernel_code.length() });
+    }
+    const std::string maxWgSize = std::to_string(device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>());
+    std::vector<std::tuple<const char *, const char *>> variables = {
+        { "MAX_WG_SIZE", maxWgSize.c_str() }
+    };
+    std::string variableString = "";
+    for (auto const &variable : variables) {
+        variableString += std::string(" -D") + std::get<0>(variable) + std::string("=") + std::get<1>
+                          (variable);
+    }
+    //std::cout << "variableString: \"" << variableString << "\"" << std::endl;
 
     // Build the program and check if compilation was successful
     cl::Program program(context, sources);
