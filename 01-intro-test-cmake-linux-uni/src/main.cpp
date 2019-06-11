@@ -118,17 +118,32 @@ const bool runKernelOnOpenClDevice(cl::Device &device, std::vector<int> &vec,
 
     // Create the program that should be executed that is equivalent to the host code
     cl::Program::Sources sources;
-    const char *fileName = "kernels/kernel.cl";
+	std::vector<const char*> sourceFiles = {
+		"kernels/kernel.cl",
+		"kernels/kernel_helper.cl"
+	};
     const char *kernelName = "simple";
-    const std::ifstream file(fileName);
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    const std::string kernel_code = buffer.str();
-    sources.push_back({kernel_code.c_str(), kernel_code.length()});
+	for (auto const& sourceFilePath : sourceFiles) {
+		const std::ifstream file(sourceFilePath);
+		std::stringstream buffer;
+		buffer << file.rdbuf();
+		const std::string kernel_code = buffer.str();
+		//std::cout << "add kernel code: \"" << sourceFilePath << "\" =>\n" << kernel_code << std::endl;
+		sources.push_back({ kernel_code.c_str(), kernel_code.length() });
+	}
+	const std::string maxWgSize = std::to_string(device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>());
+	std::vector<std::tuple<const char*, const char*>> variables = {
+		{ "MAX_WG_SIZE", maxWgSize.c_str() }
+	};
+	std::string variableString = "";
+	for (auto const& variable : variables) {
+		variableString += std::string(" -D") + std::get<0>(variable) + std::string("=") + std::get<1>(variable);
+	}
+	//std::cout << "variableString: \"" << variableString << "\"" << std::endl;
+
     // Build the program and check if compilation was successful
-    const std::string maxWgSize = std::to_string(device.getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>());
     cl::Program program(context, sources);
-    if (program.build({device}, ("-DMAX_WG_SIZE=" + maxWgSize).c_str()) != CL_SUCCESS) {
+    if (program.build({device}, variableString.c_str()) != CL_SUCCESS) {
         std::cout << "\t\t\033[1;31mError building:\033[0m "
                   << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device) << std::endl;
         return false;

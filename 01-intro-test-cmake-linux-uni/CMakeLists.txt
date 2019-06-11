@@ -44,3 +44,4 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${OpenCL_LIBRARY})
 
 # Copy the kernel file
 configure_file(src/kernels/kernel.cl ${CMAKE_BINARY_DIR}/kernels/kernel.cl COPYONLY)
+configure_file(src/kernels/kernel_helper.cl ${CMAKE_BINARY_DIR}/kernels/kernel_helper.cl COPYONLY)
